@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { ArrowDown, Sparkles, Code2, GraduationCap, Globe } from "lucide-react";
 import { Typewriter } from "@/components/portfolio/typewriter";
+import { EyeFollowPortrait } from "@/components/portfolio/eye-follow-portrait";
 import { useMounted } from "@/hooks/use-mounted";
 
 export function HeroSection() {
@@ -33,13 +33,7 @@ export function HeroSection() {
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary via-nebula-2 to-accent animate-spin-slow opacity-60 blur-md" />
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary via-nebula-2 to-accent animate-spin-slow" />
             <div className="relative h-full w-full rounded-full overflow-hidden border-2 border-background">
-              <Image
-                src="/images/Pooja-without-bg.png"
-                alt="Pooja - Computer Science Teacher"
-                fill
-                className="object-cover object-top"
-                priority
-              />
+              <EyeFollowPortrait />
             </div>
           </div>
         </div>
