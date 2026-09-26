@@ -24,14 +24,14 @@ export function HeroSection() {
       <div className="relative z-10 mx-auto max-w-5xl text-center">
         {/* Profile Image */}
                 <div
-                  className={`mx-auto mb-8 transition-all duration-1000 ${
-                    mounted
-                      ? "opacity-100 translate-y-0 scale-100"
-                      : "opacity-0 translate-y-6 scale-90"
-                  }`}
-                >
-                  <EyeFollowPortrait />
-                </div>
+                          className={`mx-auto mb-8 h-56 w-56 md:h-64 md:w-64 transition-all duration-1000 ${
+                            mounted
+                              ? "opacity-100 translate-y-0 scale-100"
+                              : "opacity-0 translate-y-6 scale-90"
+                          }`}
+                        >
+                          <EyeFollowPortrait />
+                        </div>
 
         {/* Status badge */}
         <div
