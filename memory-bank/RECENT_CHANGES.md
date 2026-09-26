@@ -2,6 +2,12 @@
 
 ## Log
 
+### 2026-09-27 — Ignored local dev-server logs and editor backups
+- Added `dev-server.log`, `dev-server.err.log`, and `*.backup` to `.gitignore`
+- These were showing as untracked noise in every `git status` while a local
+  dev server held the log handles open
+- No source or content changes
+
 ### 2026-09-06 — Refined responsive playable game experience
 - Replaced text-heavy game cards with minimalist cards and level pills
 - Added dedicated Rules dialogs for rules, level details, and controls
