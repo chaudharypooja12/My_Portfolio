@@ -110,6 +110,23 @@ npm run build
 npm run start
 ```
 
+### Verifying content
+
+```bash
+npm run check:content   # validate src/data/portfolio.json + resume PDF
+npm run type-check      # tsc --noEmit
+npm run verify          # all three, chained — run this before committing
+```
+
+All portfolio content lives in `src/data/portfolio.json`. `check-content.mjs` is a
+read-only guard: it verifies the JSON parses, every required section is present and
+non-empty, `profile` has its required fields, and `public/Pooja_Resume.pdf` exists and
+is not truncated.
+
+**After editing `portfolio.json`, run `npm run resume:generate` before `npm run verify`.**
+The resume PDF is generated from that same data; the guard confirms the file exists but
+cannot confirm it matches the current content.
+
 ---
 
 ## 📁 Project Structure

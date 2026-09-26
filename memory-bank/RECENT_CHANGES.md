@@ -2,6 +2,22 @@
 
 ## Log
 
+### 2026-09-27 — Added content guard and verification scripts
+- Added `scripts/check-content.mjs`, a read-only guard for `src/data/portfolio.json`
+- Checks: valid JSON, required sections present, required `profile` fields non-empty
+  and email well-formed, `experience`/`skills`/`projects`/`education`/`certificates`
+  are non-empty arrays (an empty array renders as a silent blank section), experience
+  entries have `company` and `role`, projects have a title, and
+  `public/Pooja_Resume.pdf` exists and is not truncated
+- Added `type-check` (`tsc --noEmit`) — never run in this repo before; passes clean
+- Added `check:content` and `verify` (content + types + lint chained) to `package.json`
+- **After editing `portfolio.json`, run `npm run resume:generate` then
+  `npm run verify`** — the guard checks the PDF exists but cannot confirm it matches
+  the current data
+- No site content changed
+- Pre-existing lint warning left untouched: unused `Image` import in
+  `src/modules/home/hero.tsx`
+
 ### 2026-09-27 — Ignored local dev-server logs and editor backups
 - Added `dev-server.log`, `dev-server.err.log`, and `*.backup` to `.gitignore`
 - These were showing as untracked noise in every `git status` while a local

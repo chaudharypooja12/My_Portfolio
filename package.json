@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "type-check": "tsc --noEmit",
+    "check:content": "node scripts/check-content.mjs",
+    "verify": "npm run check:content && npm run type-check && npm run lint",
     "resume:generate": "node scripts/generate-resume.mjs"
   },
   "dependencies": {
