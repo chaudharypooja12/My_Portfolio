@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ArrowDown, Sparkles, Code2, GraduationCap, Globe } from "lucide-react";
 import { Typewriter } from "@/components/portfolio/typewriter";
+import { EyeFollowPortrait } from "@/components/portfolio/eye-follow-portrait";
 import { useMounted } from "@/hooks/use-mounted";
 
 export function HeroSection() {
@@ -22,27 +23,15 @@ export function HeroSection() {
 
       <div className="relative z-10 mx-auto max-w-5xl text-center">
         {/* Profile Image */}
-        <div
-          className={`mx-auto mb-8 transition-all duration-1000 ${
-            mounted
-              ? "opacity-100 translate-y-0 scale-100"
-              : "opacity-0 translate-y-6 scale-90"
-          }`}
-        >
-          <div className="relative mx-auto h-40 w-40 md:h-48 md:w-48">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary via-nebula-2 to-accent animate-spin-slow opacity-60 blur-md" />
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary via-nebula-2 to-accent animate-spin-slow" />
-            <div className="relative h-full w-full rounded-full overflow-hidden border-2 border-background">
-              <Image
-                src="/images/Pooja-without-bg.png"
-                alt="Pooja - Computer Science Teacher"
-                fill
-                className="object-cover object-top"
-                priority
-              />
-            </div>
-          </div>
-        </div>
+                <div
+                  className={`mx-auto mb-8 transition-all duration-1000 ${
+                    mounted
+                      ? "opacity-100 translate-y-0 scale-100"
+                      : "opacity-0 translate-y-6 scale-90"
+                  }`}
+                >
+                  <EyeFollowPortrait />
+                </div>
 
         {/* Status badge */}
         <div
