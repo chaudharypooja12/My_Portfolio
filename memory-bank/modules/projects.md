@@ -17,7 +17,6 @@ The featured grid renders these four original work items as standard cards:
 |---|---|---|---|---|---|
 | `portfolio` | Portfolio Website | `portfolio-website.webp` | Flagship build | Cosmic glassmorphism, responsive light/dark themes | Next.js, TypeScript, Tailwind CSS, shadcn/ui |
 | `attendance` | Attendance Management System | `attendance-management.webp` | Operations workflow | Daily attendance tracking, reporting-focused review flow | Employee Tracking, Management System, Reporting |
-| `banking` | Banking Application | `banking-application.webp` | Core application | Account opening, balance enquiry | Account Opening, Balance Enquiry, Financial |
 | `education` | CS Education & Teaching | `cs-education.webp` | Teaching practice | Curriculum design, assessments, mentoring | Curriculum Design, Teaching, Student Engagement |
 
 ## Project Images
@@ -32,7 +31,6 @@ The featured grid renders these four original work items as standard cards:
 |---|---|
 | Portfolio Website | `portfolio-website.webp` |
 | Attendance Management System | `attendance-management.webp` |
-| Banking Application | `banking-application.webp` |
 | CS Education & Teaching | `cs-education.webp` |
 | Tic-tac-toe | `tic-tac-toe.webp` |
 | Snake | `snake-game.webp` |

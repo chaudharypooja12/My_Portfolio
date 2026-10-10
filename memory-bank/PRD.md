@@ -41,7 +41,6 @@ section that now includes playable demos alongside professional work.
 |---|---|---|---|
 | `portfolio` | Portfolio Website | Featured build card | Cosmic galaxy-themed responsive portfolio with animated visual effects, accessible UI, light and dark themes, and Vercel deployment. |
 | `attendance` | Attendance Management System | Featured build card | Application for efficiently tracking and reporting employee attendance. |
-| `banking` | Banking Application | Featured build card | Account management application with account opening and balance enquiry features. |
 | `education` | CS Education & Teaching | Featured build card | Computer Science curriculum and hands-on learning experiences with regular assessments and student mentoring. |
 | `tic-tac-toe` | Tic-tac-toe | Playable dialog demo | Human-versus-computer strategy game with three AI difficulty levels, round scoring, and accessible keyboard play. |
 | `snake` | Snake | Playable dialog demo | Responsive arcade game with food collection, snake growth, progressive speed levels, keyboard and touch controls. |
@@ -71,7 +70,7 @@ section that now includes playable demos alongside professional work.
 |---|---|---|
 | FR-01 | Render the public portfolio homepage with all current visible sections | Implemented |
 | FR-02 | Generate the resume and render project cards from `src/data/portfolio.json` | Implemented |
-| FR-03 | Show four featured project/work cards for portfolio, attendance, banking, and teaching | Implemented |
+| FR-03 | Show four featured project/work cards for portfolio, attendance, and teaching | Implemented |
 | FR-04 | Show three playable project demo cards that open focused dialogs | Implemented |
 | FR-05 | Tic-tac-toe must support easy, medium, and hard computer difficulty plus score tracking | Implemented |
 | FR-06 | Snake must support keyboard and touch controls, leveling, pause/resume, and saved best stats | Implemented |

@@ -1,11 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import {
-  PDFDocument,
-  StandardFonts,
-  rgb,
-} from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const data = JSON.parse(
@@ -23,12 +19,22 @@ const regular = await pdf.embedFont(StandardFonts.Helvetica);
 const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 const pageWidth = 612;
 const pageHeight = 792;
-const margin = 48;
+const margin = 46;
+const bottomMargin = 36;
 const contentWidth = pageWidth - margin * 2;
+const indent = 12;
 const ink = rgb(0.11, 0.14, 0.2);
 const muted = rgb(0.31, 0.35, 0.42);
-const accent = rgb(0.31, 0.2, 0.62);
-const rule = rgb(0.82, 0.83, 0.87);
+const accent = rgb(0.08, 0.36, 0.4);
+const white = rgb(1, 1, 1);
+const softWhite = rgb(0.86, 0.94, 0.94);
+const lightTint = rgb(0.88, 0.95, 0.95);
+
+const BODY = 9.8;
+const BODY_LH = 12.4;
+const SMALL = 9.2;
+const SMALL_LH = 11.6;
+
 const pages = [];
 let page;
 let y;
@@ -43,17 +49,21 @@ function width(text, font, size) {
   return font.widthOfTextAtSize(text, size);
 }
 
-function wrap(text, font, size, maxWidth) {
+function wrap(text, font, size, maxWidth, firstLineOffset = 0) {
   const words = text.split(/\s+/);
   const lines = [];
   let line = "";
+  let limit = maxWidth - firstLineOffset;
 
   for (const word of words) {
     const candidate = line ? `${line} ${word}` : word;
-    if (width(candidate, font, size) <= maxWidth) {
+    if (width(candidate, font, size) <= limit) {
       line = candidate;
     } else {
-      if (line) lines.push(line);
+      if (line) {
+        lines.push(line);
+        limit = maxWidth;
+      }
       line = word;
     }
   }
@@ -63,21 +73,20 @@ function wrap(text, font, size, maxWidth) {
 }
 
 function ensureSpace(height) {
-  if (y - height < margin + 18) addPage();
+  if (y - height < bottomMargin) addPage();
 }
 
 function drawLines(lines, options = {}) {
   const {
     font = regular,
-    size = 9.5,
+    size = BODY,
     color = ink,
     x = margin,
-    maxWidth = contentWidth,
-    lineHeight = size + 3,
+    lineHeight = BODY_LH,
     gapAfter = 0,
   } = options;
 
-  const wrapped = lines.flatMap((line) => wrap(line, font, size, maxWidth));
+  const wrapped = lines.flatMap((line) => wrap(line, font, size, pageWidth - margin - x));
   ensureSpace(wrapped.length * lineHeight + gapAfter);
   for (const line of wrapped) {
     page.drawText(line, { x, y, font, size, color });
@@ -86,158 +95,161 @@ function drawLines(lines, options = {}) {
   y -= gapAfter;
 }
 
+function bullet(text, options = {}) {
+  const { size = BODY, lineHeight = BODY_LH, color = ink, label, gapAfter = 2 } = options;
+  const textX = margin + indent + 13;
+  const maxWidth = pageWidth - margin - textX;
+  const labelText = label ? `${label} ` : "";
+  const labelWidth = label ? width(labelText, bold, size) : 0;
+  const lines = wrap(text, regular, size, maxWidth, labelWidth);
+  ensureSpace(lines.length * lineHeight + gapAfter);
+  page.drawText("•", { x: margin + indent + 3, y, font: bold, size, color: accent });
+  if (label) page.drawText(labelText, { x: textX, y, font: bold, size, color: ink });
+  for (const [index, line] of lines.entries()) {
+    page.drawText(line, {
+      x: index === 0 ? textX + labelWidth : textX,
+      y,
+      font: regular,
+      size,
+      color,
+    });
+    y -= lineHeight;
+  }
+  y -= gapAfter;
+}
+
 function section(title) {
-  ensureSpace(34);
-  y -= 7;
-  page.drawText(title.toUpperCase(), {
+  ensureSpace(70);
+  y -= 6;
+  const barHeight = 19;
+  page.drawRectangle({
     x: margin,
+    y: y - 6,
+    width: contentWidth,
+    height: barHeight,
+    color: accent,
+  });
+  page.drawText(title.toUpperCase(), {
+    x: margin + 9,
     y,
     font: bold,
     size: 10.5,
-    color: accent,
+    color: white,
   });
-  y -= 6;
-  page.drawLine({
-    start: { x: margin, y },
-    end: { x: pageWidth - margin, y },
-    thickness: 0.8,
-    color: rule,
+  y -= 24;
+}
+
+function subheading(title, right) {
+  ensureSpace(52);
+  const barHeight = 17;
+  page.drawRectangle({
+    x: margin,
+    y: y - 5,
+    width: contentWidth,
+    height: barHeight,
+    color: lightTint,
   });
-  y -= 15;
+  page.drawText(title, { x: margin + 8, y, font: bold, size: 10.8, color: accent });
+  if (right) {
+    page.drawText(right, {
+      x: pageWidth - margin - 8 - width(right, regular, 9.2),
+      y,
+      font: regular,
+      size: 9.2,
+      color: muted,
+    });
+  }
+  y -= 20;
 }
 
 function role(entry) {
-  ensureSpace(58);
-  page.drawText(entry.role, { x: margin, y, font: bold, size: 10.2, color: ink });
-  const dateWidth = width(entry.date, regular, 8.8);
-  page.drawText(entry.date, {
-    x: pageWidth - margin - dateWidth,
-    y,
-    font: regular,
-    size: 8.8,
+  subheading(entry.role, entry.date);
+  drawLines([entry.company], {
+    x: margin + indent,
+    size: SMALL,
     color: muted,
+    lineHeight: SMALL_LH,
+    gapAfter: 2,
   });
-  y -= 13;
-  page.drawText(entry.company, { x: margin, y, font: regular, size: 9.3, color: muted });
-  y -= 14;
-  for (const item of entry.responsibilities) {
-    const lines = wrap(item, regular, 9, contentWidth - 15);
-    ensureSpace(lines.length * 11.5);
-    page.drawText("-", { x: margin + 2, y, font: bold, size: 9, color: accent });
-    for (const [index, line] of lines.entries()) {
-      page.drawText(line, {
-        x: margin + 14,
-        y: y - index * 11.5,
-        font: regular,
-        size: 9,
-        color: ink,
-      });
-    }
-    y -= lines.length * 11.5 + 2;
-  }
-  y -= 4;
+  for (const item of entry.responsibilities) bullet(item);
+  y -= 5;
 }
 
 function project(entry) {
-  ensureSpace(48);
-  page.drawText(entry.title, { x: margin, y, font: bold, size: 10, color: ink });
-  y -= 13;
-  drawLines([entry.description], { size: 9, lineHeight: 11.5, gapAfter: 2 });
-  drawLines([`Technologies: ${entry.tags.join(", ")}`], {
-    size: 8.5,
-    color: muted,
-    lineHeight: 10.5,
-    gapAfter: 7,
-  });
+  subheading(entry.title);
+  bullet(entry.description);
+  bullet(entry.tags.join(", "), { label: "Technologies:", size: SMALL, lineHeight: SMALL_LH, color: muted });
+  if (entry.url) {
+    bullet(entry.url.replace(/^https?:\/\//, "").replace(/\/$/, ""), {
+      label: "Live:",
+      size: SMALL,
+      lineHeight: SMALL_LH,
+      color: muted,
+    });
+  }
+  y -= 5;
 }
 
 addPage();
-page.drawText(data.profile.name, {
-  x: margin,
-  y,
-  font: bold,
-  size: 23,
-  color: ink,
-});
-y -= 25;
-page.drawText(data.profile.title, {
-  x: margin,
-  y,
-  font: bold,
-  size: 11,
+
+const bandHeight = 96;
+page.drawRectangle({
+  x: 0,
+  y: pageHeight - bandHeight,
+  width: pageWidth,
+  height: bandHeight,
   color: accent,
 });
-y -= 18;
-drawLines(
-  [`${data.profile.email}  |  ${data.profile.linkedin}  |  ${data.profile.github}`],
-  { size: 8.5, color: muted, lineHeight: 10.5, gapAfter: 2 },
+y = pageHeight - 42;
+page.drawText(data.profile.name, { x: margin, y, font: bold, size: 25, color: white });
+y -= 21;
+page.drawText(data.profile.title, { x: margin, y, font: bold, size: 12, color: softWhite });
+y -= 19;
+page.drawText(
+  `${data.profile.email}  |  ${data.profile.linkedin}  |  ${data.profile.github}`,
+  { x: margin, y, font: regular, size: 9, color: white },
 );
+y = pageHeight - bandHeight - 14;
 
 section("Professional Summary");
-drawLines([data.profile.summary], { size: 9.4, lineHeight: 12.2, gapAfter: 1 });
+drawLines([data.profile.summary], { size: 10.2, lineHeight: 13.2, gapAfter: 1 });
 
 section("Professional Experience");
 for (const entry of data.experience) role(entry);
 
-section("Technical Skills");
-for (const skill of data.skills) {
-  drawLines([`${skill.category}: ${skill.items.join(", ")}`], {
-    size: 9,
-    lineHeight: 11.5,
-    gapAfter: 2,
-  });
-}
-
-addPage();
-section("Selected Projects");
-for (const projectEntry of data.projects.filter((entry) =>
-  ["portfolio", "attendance", "banking", "tic-tac-toe", "snake", "spaceship"].includes(entry.id),
-)) {
-  project(projectEntry);
-}
-
 section("Education");
 for (const entry of data.education) {
-  ensureSpace(34);
-  page.drawText(entry.degree, { x: margin, y, font: bold, size: 9.6, color: ink });
-  const dateWidth = width(entry.date, regular, 8.5);
-  page.drawText(entry.date, {
-    x: pageWidth - margin - dateWidth,
-    y,
-    font: regular,
-    size: 8.5,
-    color: muted,
-  });
-  y -= 12;
+  subheading(entry.degree, entry.date);
   drawLines([`${entry.institution} | ${entry.grade}`], {
-    size: 8.8,
+    x: margin + indent,
+    size: SMALL,
     color: muted,
-    lineHeight: 10.5,
+    lineHeight: SMALL_LH,
     gapAfter: 5,
   });
 }
 
-section("Certificates & Achievement");
-drawLines([`Certificates: ${data.certificates.join("; ")}`], {
-  size: 9,
-  lineHeight: 11.5,
-  gapAfter: 4,
-});
-drawLines([data.achievement], { size: 9, lineHeight: 11.5 });
-
-for (const [index, resumePage] of pages.entries()) {
-  const footer = `${data.profile.name} | Page ${index + 1} of ${pages.length}`;
-  resumePage.drawText(footer, {
-    x: pageWidth / 2 - width(footer, regular, 8) / 2,
-    y: 24,
-    font: regular,
-    size: 8,
-    color: muted,
-  });
+section("Technical Skills");
+for (const skill of data.skills) {
+  bullet(skill.items.join(", "), { label: `${skill.category}:` });
 }
 
-if (pages.length !== 2) {
-  throw new Error(`Resume must contain exactly 2 pages; generated ${pages.length}.`);
+section("Projects");
+for (const projectEntry of data.projects.filter((entry) => entry.id !== "education")) {
+  project(projectEntry);
+}
+
+section("Certificates & Achievement");
+bullet(data.certificates.join("; "), { label: "Certificates:" });
+bullet(data.achievement);
+
+section("Languages");
+for (const language of data.languages) {
+  bullet(`(${language.level})`, { label: language.name });
+}
+
+if (pages.length > 2) {
+  throw new Error(`Resume must fit in 2 pages; generated ${pages.length}.`);
 }
 
 const output = path.join(root, "public", "Pooja_Resume.pdf");

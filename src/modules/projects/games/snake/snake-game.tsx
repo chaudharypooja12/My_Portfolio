@@ -572,7 +572,7 @@ export function SnakeGame() {
 
       <CardHeader className="relative gap-2 px-3 pb-2 pt-3 sm:px-4">
         <div className="grid grid-cols-2 gap-2">
-              <div className="glass rounded-xl px-3 py-2">
+              <div className="clay-sm rounded-xl bg-card px-3 py-2">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <Trophy className="h-3.5 w-3.5" />
                   Score
@@ -583,7 +583,7 @@ export function SnakeGame() {
                 </div>
               </div>
 
-              <div className="glass rounded-xl px-3 py-2">
+              <div className="clay-sm rounded-xl bg-card px-3 py-2">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <TrendingUp className="h-3.5 w-3.5" />
                   Level
@@ -672,7 +672,7 @@ export function SnakeGame() {
                 aria-label={label}
                 onPointerDown={() => handleDirectionChange(direction)}
                 className={[
-                  "glass flex h-11 touch-manipulation items-center justify-center rounded-xl text-emerald-700 transition-all duration-200 hover:border-emerald-500/50 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-100",
+                  "clay-sm bg-card flex h-11 touch-manipulation items-center justify-center rounded-xl text-emerald-700 transition-all duration-200 hover:border-emerald-500/50 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-100",
                   "active:scale-95 active:bg-emerald-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
                   position,
                 ].join(" ")}

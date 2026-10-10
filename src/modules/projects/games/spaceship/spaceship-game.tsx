@@ -778,7 +778,7 @@ export function SpaceshipGame() {
     Math.floor(snapshot.invulnerableRemainingMs / 100) % 2 === 0;
 
   return (
-    <div className="glass-strong relative flex min-h-full flex-col overflow-hidden rounded-3xl border border-glass-border/60 p-3 shadow-[0_18px_60px_oklch(0.1_0.04_275_/_0.16)] sm:p-4">
+    <div className="clay relative flex min-h-full flex-col overflow-hidden rounded-[2rem] bg-card p-3 sm:p-4">
       <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-primary/10 via-nebula-2/5 to-transparent" />
       <p id={instructionsId} className="sr-only">
         Use the arrow keys or W, A, S, and D to move the ship. Touch controls

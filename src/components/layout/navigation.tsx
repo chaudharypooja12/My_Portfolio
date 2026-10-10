@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Sparkles } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "#about", label: "About" },
@@ -16,6 +18,22 @@ const navLinks = [
   { href: "#achievements", label: "Achievements" },
   { href: "#resume", label: "Resume" },
 ];
+
+function Logo() {
+  return (
+    <span className="flex items-center gap-2.5 font-heading text-lg font-bold text-foreground">
+      <span
+        aria-hidden="true"
+        className="clay-btn flex size-10 items-center justify-center rounded-2xl bg-primary font-heading text-[0.95rem] font-extrabold tracking-tight text-primary-foreground [--clay-tint:var(--primary)]"
+      >
+        PC
+      </span>
+      <span>
+        Pooja<span className="sr-only"> Chaudhary</span>
+      </span>
+    </span>
+  );
+}
 
 export function Navigation() {
   const [open, setOpen] = useState(false);
@@ -30,55 +48,45 @@ export function Navigation() {
       const sections = navLinks.map((l) => l.href.replace("#", ""));
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = document.getElementById(sections[i]);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 200) {
-            setActiveSection(sections[i]);
-            return;
-          }
+        if (el && el.getBoundingClientRect().top <= 200) {
+          setActiveSection(sections[i]);
+          return;
         }
       }
       setActiveSection("");
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass">
-      {/* Scroll progress bar */}
-      <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-primary via-accent to-nebula-2 transition-all duration-150"
-        style={{ width: `${scrollProgress}%` }}
-      />
-
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8">
-        <Link
-          href="/"
-          className="group flex items-center gap-2 text-xl font-bold"
-          aria-label="Pooja - Home"
-        >
-          <Sparkles className="h-5 w-5 text-primary transition-all duration-300 group-hover:rotate-12 group-hover:scale-110" />
-          <span className="gradient-text">Pooja</span>
+    <header className="fixed inset-x-3 top-3 z-50 md:inset-x-6">
+      <nav
+        aria-label="Primary"
+        className="clay relative mx-auto flex h-16 max-w-6xl items-center justify-between overflow-hidden rounded-full bg-card/95 px-3 pl-4 backdrop-blur-md"
+      >
+        <Link href="/" aria-label="Pooja - Home">
+          <Logo />
         </Link>
 
-        <ul className="hidden items-center gap-1 md:flex">
+        <ul className="hidden items-center gap-1 lg:flex">
           {navLinks.map((link) => {
             const isActive = activeSection === link.href.replace("#", "");
             return (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`relative rounded-md px-3 py-2 text-sm font-medium transition-all duration-300 ${
+                  aria-current={isActive ? "true" : undefined}
+                  className={cn(
+                    "rounded-full px-3.5 py-2 text-sm font-semibold transition-colors",
                     isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                      ? "clay-inset bg-tone-peach text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
                 >
                   {link.label}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-1/2 h-0.5 w-3/4 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent" />
-                  )}
                 </Link>
               </li>
             );
@@ -89,52 +97,50 @@ export function Navigation() {
           <ThemeToggle />
 
           <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger className="md:hidden" aria-label="Open menu">
-              <Menu className="h-5 w-5" />
+            <SheetTrigger
+              aria-label="Open menu"
+              className={cn(buttonVariants({ variant: "secondary", size: "icon" }), "lg:hidden")}
+            >
+              <Menu className="size-5" />
             </SheetTrigger>
-            <SheetContent side="right" className="w-72 border-border/50 bg-background/95 backdrop-blur-xl">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-lg font-bold">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    <span className="gradient-text">Pooja</span>
-                  </span>
-                  <button
-                    onClick={() => setOpen(false)}
-                    aria-label="Close menu"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                <div className="h-px bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30" />
-                <ul className="flex flex-col gap-1">
-                  {navLinks.map((link, i) => {
-                    const isActive = activeSection === link.href.replace("#", "");
-                    return (
-                      <li
-                        key={link.href}
-                        className="animate-[slideUp_0.3s_ease-out_forwards] opacity-0"
-                        style={{ animationDelay: `${i * 0.05}s` }}
+            <SheetContent side="right" className="w-72 p-5">
+              <SheetTitle className="mb-2">
+                <Logo />
+              </SheetTitle>
+              <ul className="flex flex-col gap-2">
+                {navLinks.map((link) => {
+                  const isActive = activeSection === link.href.replace("#", "");
+                  return (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        aria-current={isActive ? "true" : undefined}
+                        className={cn(
+                          "block rounded-2xl px-4 py-3 text-sm font-semibold transition-colors",
+                          isActive
+                            ? "clay-inset bg-tone-peach text-foreground"
+                            : "text-foreground hover:bg-muted",
+                        )}
                       >
-                        <Link
-                          href={link.href}
-                          onClick={() => setOpen(false)}
-                          className={`block rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-300 ${
-                            isActive
-                              ? "bg-primary/10 text-primary"
-                              : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                          }`}
-                        >
-                          {link.label}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </SheetContent>
           </Sheet>
+        </div>
+
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-6 bottom-0 h-1 overflow-hidden rounded-full"
+        >
+          <div
+            className="h-full rounded-full bg-primary transition-[width] duration-150"
+            style={{ width: `${scrollProgress}%` }}
+          />
         </div>
       </nav>
     </header>

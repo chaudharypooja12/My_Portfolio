@@ -6,17 +6,25 @@ import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
   Brain,
-  DollarSign,
+  ExternalLink,
+  Eye,
+  FileText,
   Gamepad2,
   Info,
   Layout,
   Play,
+  Puzzle,
   Rocket,
-  Sparkles,
+  UtensilsCrossed,
   Users,
 } from "lucide-react";
-import { SectionHeader } from "@/components/sections/section-header";
+import { ClayCard, IconTile } from "@/components/clay/clay-card";
+import type { Tone } from "@/components/clay/tones";
+import { Reveal } from "@/components/layout/reveal";
+import { Section } from "@/components/sections/section";
+import { TechIcon, TechTag, hasTechIcon } from "@/components/portfolio/tech-icon";
 import { Badge } from "@/components/ui/badge";
+import { Button, ButtonLink } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -28,13 +36,14 @@ import portfolioData from "@/data/portfolio.json";
 import { SnakeGame } from "@/modules/projects/games/snake";
 import { SpaceshipGame } from "@/modules/projects/games/spaceship";
 import { TicTacToeGame } from "@/modules/projects/games/tic-tac-toe";
-import { cn } from "@/lib/utils";
 
 type ProjectId =
   | "portfolio"
   | "attendance"
-  | "banking"
   | "education"
+  | "misrikitchen"
+  | "document-collector"
+  | "interactive-learning"
   | "tic-tac-toe"
   | "snake"
   | "spaceship";
@@ -47,16 +56,17 @@ type PortfolioProject = {
   title: string;
   description: string;
   tags: string[];
+  url?: string;
 };
 
 type GameComponent = ComponentType<Record<string, never>>;
 
 type ProjectBase = PortfolioProject & {
   icon: LucideIcon;
-  gradient: string;
+  tone: Tone;
   eyebrow: string;
-  imageSrc: string;
-  imageAlt: string;
+  imageSrc?: string;
+  imageAlt?: string;
 };
 
 type StandardProject = Omit<ProjectBase, "id"> & {
@@ -80,18 +90,14 @@ type ProjectCard = StandardProject | GameProject;
 
 const portfolioProjects = portfolioData.projects as readonly PortfolioProject[];
 
-const projectImages = {
+const projectImages: Partial<Record<ProjectId, { src: string; alt: string }>> = {
   portfolio: {
     src: "/images/projects/portfolio-website.webp",
-    alt: "Desktop and mobile screens showing a cosmic glassmorphism interface.",
+    alt: "Desktop and mobile screens showing the portfolio interface.",
   },
   attendance: {
     src: "/images/projects/attendance-management.webp",
     alt: "Attendance dashboard with a calendar, employee statuses, analytics, and reports.",
-  },
-  banking: {
-    src: "/images/projects/banking-application.webp",
-    alt: "Secure financial dashboard with a bank card, account panels, coins, and a vault.",
   },
   education: {
     src: "/images/projects/cs-education.webp",
@@ -103,13 +109,13 @@ const projectImages = {
   },
   snake: {
     src: "/images/projects/snake-game.webp",
-    alt: "Glowing green snake moving across a cosmic arcade grid toward fruit.",
+    alt: "Glowing green snake moving across an arcade grid toward fruit.",
   },
   spaceship: {
     src: "/images/projects/spaceship-survival.webp",
     alt: "Spacecraft weaving through a colorful field of incoming asteroids.",
   },
-} satisfies Record<ProjectId, { src: string; alt: string }>;
+};
 
 function assertNever(value: never): never {
   throw new Error(`Unhandled project id: ${value}`);
@@ -117,77 +123,98 @@ function assertNever(value: never): never {
 
 const projectCards = portfolioProjects.map<ProjectCard>((project) => {
   const image = projectImages[project.id];
+  const media = image ? { imageSrc: image.src, imageAlt: image.alt } : {};
 
   switch (project.id) {
     case "portfolio":
       return {
         ...project,
-        imageSrc: image.src,
-        imageAlt: image.alt,
+        ...media,
         id: "portfolio",
         kind: "standard",
         icon: Layout,
-        gradient: "from-primary to-nebula-2",
+        tone: "peach",
         eyebrow: "Flagship build",
         highlights: [
-          "Cosmic glassmorphism interface with animated effects.",
+          "Claymorphism interface with colorful, tactile cards.",
           "Accessible light and dark themes with responsive layouts.",
         ],
       };
     case "attendance":
       return {
         ...project,
-        imageSrc: image.src,
-        imageAlt: image.alt,
+        ...media,
         id: "attendance",
         kind: "standard",
         icon: Users,
-        gradient: "from-accent to-nebula-3",
+        tone: "mint",
         eyebrow: "Operations workflow",
         highlights: [
           "Employee attendance tracking designed for daily usage.",
           "Reporting-focused experience for quick review and follow-up.",
         ],
       };
-    case "banking":
-      return {
-        ...project,
-        imageSrc: image.src,
-        imageAlt: image.alt,
-        id: "banking",
-        kind: "standard",
-        icon: DollarSign,
-        gradient: "from-nebula-1 to-primary",
-        eyebrow: "Core application",
-        highlights: [
-          "Supports account opening and balance enquiry journeys.",
-          "Built around clear data entry and account visibility flows.",
-        ],
-      };
     case "education":
       return {
         ...project,
-        imageSrc: image.src,
-        imageAlt: image.alt,
+        ...media,
         id: "education",
         kind: "standard",
         icon: BookOpen,
-        gradient: "from-nebula-2 to-accent",
+        tone: "butter",
         eyebrow: "Teaching practice",
         highlights: [
           "Hands-on curriculum design for practical computer science learning.",
           "Regular assessments and mentoring to reinforce problem solving.",
         ],
       };
+    case "misrikitchen":
+      return {
+        ...project,
+        id: "misrikitchen",
+        kind: "standard",
+        icon: UtensilsCrossed,
+        tone: "rose",
+        eyebrow: "Client website",
+        highlights: [
+          "Built with Next.js for fast, responsive pages.",
+          "Live at misrikitchen.com.",
+        ],
+      };
+    case "document-collector":
+      return {
+        ...project,
+        id: "document-collector",
+        kind: "standard",
+        icon: FileText,
+        tone: "teal",
+        eyebrow: "Web application",
+        highlights: [
+          "Next.js frontend for the document collection workflow.",
+          "PostgreSQL backend for reliable record storage.",
+        ],
+      };
+    case "interactive-learning":
+      return {
+        ...project,
+        id: "interactive-learning",
+        kind: "standard",
+        icon: Puzzle,
+        tone: "butter",
+        eyebrow: "Learning app",
+        highlights: [
+          "Frontend-only app built with Vite, with no backend to maintain.",
+          "Interactive lessons made for Riya and Siya, deployed on Vercel.",
+        ],
+      };
     case "tic-tac-toe":
       return {
         ...project,
-        imageSrc: image.src,
-        imageAlt: image.alt,
+        ...media,
         id: "tic-tac-toe",
         kind: "game",
         icon: Brain,
-        gradient: "from-primary to-accent",
+        tone: "sky",
         eyebrow: "Interactive game",
         component: TicTacToeGame,
         dialogDescription:
@@ -208,12 +235,11 @@ const projectCards = portfolioProjects.map<ProjectCard>((project) => {
     case "snake":
       return {
         ...project,
-        imageSrc: image.src,
-        imageAlt: image.alt,
+        ...media,
         id: "snake",
         kind: "game",
         icon: Gamepad2,
-        gradient: "from-accent to-nebula-1",
+        tone: "mint",
         eyebrow: "Interactive game",
         component: SnakeGame,
         dialogDescription:
@@ -235,12 +261,11 @@ const projectCards = portfolioProjects.map<ProjectCard>((project) => {
     case "spaceship":
       return {
         ...project,
-        imageSrc: image.src,
-        imageAlt: image.alt,
+        ...media,
         id: "spaceship",
         kind: "game",
         icon: Rocket,
-        gradient: "from-nebula-2 to-primary",
+        tone: "rose",
         eyebrow: "Interactive game",
         component: SpaceshipGame,
         dialogDescription:
@@ -272,17 +297,85 @@ const gameProjects = projectCards.filter(
   (project): project is GameProject => project.kind === "game",
 );
 
+function ProjectMedia({ project }: { project: ProjectCard }) {
+  if (project.imageSrc && project.imageAlt) {
+    return (
+      <div className="relative aspect-video overflow-hidden rounded-[1.5rem] bg-card/70">
+        <Image
+          src={project.imageSrc}
+          alt={project.imageAlt}
+          width={1600}
+          height={900}
+          sizes="(max-width: 767px) calc(100vw - 2rem), 50vw"
+          className="h-full w-full object-cover transition duration-700 ease-out motion-safe:group-hover:scale-[1.04]"
+        />
+      </div>
+    );
+  }
+
+  const techNames = project.tags.filter(hasTechIcon);
+  const Icon = project.icon;
+
+  return (
+    <div className="flex aspect-video items-center justify-center gap-4 rounded-[1.5rem] bg-card/70">
+      {techNames.length > 0 ? (
+        techNames.map((name) => (
+          <TechIcon key={name} name={name} className="h-12 w-12 md:h-14 md:w-14" />
+        ))
+      ) : (
+        <Icon className="h-14 w-14 text-foreground" aria-hidden="true" />
+      )}
+    </div>
+  );
+}
+
+function ProjectTitle({ project }: { project: ProjectCard }) {
+  const Icon = project.icon;
+
+  return (
+    <div className="flex items-start justify-between gap-4 px-1">
+      <div>
+        <p className="text-xs font-bold tracking-[0.18em] text-foreground/65 uppercase">
+          {project.eyebrow}
+        </p>
+        <h4 className="mt-1 font-heading text-xl font-bold text-foreground">{project.title}</h4>
+      </div>
+      <IconTile>
+        <Icon className="size-5" aria-hidden="true" />
+      </IconTile>
+    </div>
+  );
+}
+
+function GroupHeading({
+  icon: Icon,
+  iconClassName,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  iconClassName: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-center gap-4">
+      <IconTile className={iconClassName}>
+        <Icon className="size-5" aria-hidden="true" />
+      </IconTile>
+      <div>
+        <h3 className="font-heading text-xl font-bold text-foreground md:text-2xl">{title}</h3>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  );
+}
+
 function renderTagGroup(tags: readonly string[]) {
   return (
     <div className="flex flex-wrap gap-2">
       {tags.map((tag) => (
-        <Badge
-          key={tag}
-          variant="secondary"
-          className="glass border border-glass-border/50 px-3 py-1 text-[0.72rem] tracking-wide text-muted-foreground"
-        >
-          {tag}
-        </Badge>
+        <TechTag key={tag} name={tag} />
       ))}
     </div>
   );
@@ -291,6 +384,12 @@ function renderTagGroup(tags: readonly string[]) {
 export function ProjectsSection() {
   const [selectedGameId, setSelectedGameId] = useState<GameProjectId | null>(null);
   const [rulesGameId, setRulesGameId] = useState<GameProjectId | null>(null);
+  const [previewId, setPreviewId] = useState<StandardProjectId | null>(null);
+
+  const previewProject =
+    previewId === null
+      ? null
+      : featuredProjects.find((project) => project.id === previewId) ?? null;
 
   const selectedGame =
     selectedGameId === null
@@ -304,225 +403,168 @@ export function ProjectsSection() {
       : gameProjects.find((project) => project.id === rulesGameId) ?? null;
 
   return (
-    <section id="projects" className="relative section-padding">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-nebula-3/3 to-transparent" />
+    <>
+      <Section
+        id="projects"
+        title="Projects & Work"
+        description="Client websites, web applications, teaching work, and playable experiments in one colorful showcase"
+      >
+        <div className="space-y-16">
+          <div className="space-y-6">
+            <GroupHeading
+              icon={Layout}
+              iconClassName="bg-primary text-primary-foreground"
+              title="Featured builds"
+              description="Client websites, web applications, and teaching work."
+            />
 
-      <div className="relative mx-auto max-w-6xl">
-        <SectionHeader
-          title="Projects & Work"
-          description="Responsive product builds, teaching work, and playable experiments presented in one polished showcase"
-        />
-
-        <div className="space-y-12">
-          <div className="space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-nebula-2 shadow-lg">
-                <Sparkles className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h3 className="font-heading text-xl font-bold text-foreground md:text-2xl">
-                  Featured builds
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  The four original portfolio entries remain visible as polished glass cards.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-5 md:grid-cols-2">
-              {featuredProjects.map((project, index) => {
-                const Icon = project.icon;
-
-                return (
-                  <article
-                    key={project.id}
-                    className="group gradient-border hover-lift reveal h-full"
-                    style={{ transitionDelay: `${index * 0.08}s` }}
+            <div className="grid gap-6 md:grid-cols-2">
+              {featuredProjects.map((project, index) => (
+                <Reveal key={project.id} delay={(index % 2) * 100} className="h-full">
+                  <ClayCard
+                    tone={project.tone}
+                    interactive
+                    className="group flex h-full flex-col gap-4 p-4 md:p-5"
                   >
-                    <div className="relative flex h-full flex-col overflow-hidden rounded-[var(--radius-xl)] bg-card/80">
-                      <div
-                        className={cn(
-                          "absolute -right-16 -top-16 h-36 w-36 rounded-full bg-gradient-to-br opacity-20 blur-3xl",
-                          project.gradient,
-                        )}
-                      />
-                      <div
-                        className={cn(
-                          "absolute -bottom-12 left-0 h-28 w-28 rounded-full bg-gradient-to-br opacity-15 blur-2xl",
-                          project.gradient,
-                        )}
-                      />
+                    <ProjectMedia project={project} />
+                    <ProjectTitle project={project} />
 
-                      <div className="relative aspect-video shrink-0 overflow-hidden border-b border-glass-border/60 bg-muted">
-                        <Image
-                          src={project.imageSrc}
-                          alt={project.imageAlt}
-                          width={1600}
-                          height={900}
-                          sizes="(max-width: 767px) calc(100vw - 2rem), 50vw"
-                          className="h-full w-full object-cover transition duration-700 ease-out motion-safe:group-hover:scale-[1.04]"
-                        />
-                        <div
-                          className={cn(
-                            "pointer-events-none absolute inset-0 bg-gradient-to-t opacity-35 transition-opacity duration-500 group-hover:opacity-15",
-                            project.gradient,
-                          )}
-                        />
-                      </div>
+                    <p className="px-1 text-sm leading-6 text-foreground/80">
+                      {project.description}
+                    </p>
 
-                      <div className="relative flex h-full flex-col gap-5 p-6">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
-                              {project.eyebrow}
-                            </p>
-                            <h4 className="mt-2 font-heading text-xl font-bold text-foreground">
-                              {project.title}
-                            </h4>
-                          </div>
-                          <div
-                            className={cn(
-                              "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg",
-                              project.gradient,
-                            )}
+                    <ul className="grid gap-2 text-sm">
+                      {project.highlights.map((highlight) => (
+                        <li
+                          key={highlight}
+                          className="clay-inset flex items-start gap-3 rounded-2xl bg-card/60 px-4 py-3"
+                        >
+                          <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
+                          <span>{highlight}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-auto flex flex-col gap-4 px-1 pt-1">
+                      {renderTagGroup(project.tags)}
+                      {project.url ? (
+                        <div className="flex flex-wrap gap-3">
+                          <Button onClick={() => setPreviewId(project.id)}>
+                            <Eye aria-hidden="true" />
+                            Preview
+                          </Button>
+                          <ButtonLink
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            variant="secondary"
                           >
-                            <Icon className="h-5 w-5 text-primary-foreground" />
-                          </div>
+                            <ExternalLink aria-hidden="true" />
+                            Visit site
+                            <span className="sr-only"> (opens in a new tab)</span>
+                          </ButtonLink>
                         </div>
-
-                        <p className="relative text-sm leading-7 text-muted-foreground">
-                          {project.description}
-                        </p>
-
-                        <div className="grid gap-3 text-sm text-muted-foreground">
-                          {project.highlights.map((highlight) => (
-                            <div
-                              key={highlight}
-                              className="glass flex items-start gap-3 rounded-2xl px-4 py-3"
-                            >
-                              <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
-                              <span>{highlight}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="mt-auto pt-2">{renderTagGroup(project.tags)}</div>
-                      </div>
+                      ) : null}
                     </div>
-                  </article>
-                );
-              })}
+                  </ClayCard>
+                </Reveal>
+              ))}
             </div>
           </div>
 
-          <div className="space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-nebula-1 shadow-lg">
-                <Gamepad2 className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h3 className="font-heading text-xl font-bold text-foreground md:text-2xl">
-                  Playable project demos
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Open each game in a focused dialog so only the selected experience mounts and runs.
-                </p>
-              </div>
-            </div>
+          <div className="space-y-6">
+            <GroupHeading
+              icon={Gamepad2}
+              iconClassName="bg-accent text-accent-foreground"
+              title="Playable project demos"
+              description="Open each game in a focused dialog so only the selected experience mounts and runs."
+            />
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {gameProjects.map((project, index) => {
-                const Icon = project.icon;
-
-                return (
-                  <article
-                    key={project.id}
-                    className="group gradient-border hover-lift reveal h-full rounded-[calc(var(--radius-xl)+2px)]"
-                    style={{ transitionDelay: `${index * 0.08}s` }}
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {gameProjects.map((project, index) => (
+                <Reveal key={project.id} delay={index * 100} className="h-full">
+                  <ClayCard
+                    tone={project.tone}
+                    interactive
+                    className="group flex h-full min-h-64 flex-col gap-4 p-4 md:p-5"
                   >
-                    <div className="relative flex h-full min-h-64 flex-col overflow-hidden rounded-[var(--radius-xl)] bg-card/80">
-                      <div
-                        className={cn(
-                          "absolute -right-14 -top-14 h-32 w-32 rounded-full bg-gradient-to-br opacity-25 blur-3xl transition-transform duration-500 group-hover:scale-110",
-                          project.gradient,
-                        )}
-                      />
+                    <ProjectMedia project={project} />
+                    <ProjectTitle project={project} />
 
-                      <div className="relative aspect-video shrink-0 overflow-hidden border-b border-glass-border/60 bg-muted">
-                        <Image
-                          src={project.imageSrc}
-                          alt={project.imageAlt}
-                          width={1600}
-                          height={900}
-                          sizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1279px) 50vw, 33vw"
-                          className="h-full w-full object-cover transition duration-700 ease-out motion-safe:group-hover:scale-[1.05] motion-safe:group-focus-within:scale-[1.05]"
-                        />
-                        <div
-                          className={cn(
-                            "pointer-events-none absolute inset-0 bg-gradient-to-t opacity-40 transition-opacity duration-500 group-hover:opacity-20 group-focus-within:opacity-20",
-                            project.gradient,
-                          )}
-                        />
-                      </div>
-
-                      <div className="relative flex h-full flex-col gap-4 p-5">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
-                              {project.eyebrow}
-                            </p>
-                            <h4 className="mt-1 font-heading text-xl font-bold text-foreground">
-                              {project.title}
-                            </h4>
-                          </div>
-                          <div
-                            className={cn(
-                              "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg",
-                              project.gradient,
-                            )}
-                          >
-                            <Icon className="h-5 w-5 text-primary-foreground" />
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                          {project.levelPills.map((level) => (
-                            <span
-                              key={level}
-                              className="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
-                            >
-                              {level}
-                            </span>
-                          ))}
-                        </div>
-
-                        <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
-                          <button
-                            type="button"
-                            onClick={() => setRulesGameId(project.id)}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border bg-background/70 px-3 text-sm font-semibold text-foreground transition hover:border-primary/50 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                          >
-                            <Info className="h-4 w-4" />
-                            Rules
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedGameId(project.id)}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                          >
-                            <Play className="h-4 w-4" />
-                            Play Game
-                          </button>
-                        </div>
-                      </div>
+                    <div className="flex flex-wrap gap-2 px-1">
+                      {project.levelPills.map((level) => (
+                        <Badge key={level} variant="card">
+                          {level}
+                        </Badge>
+                      ))}
                     </div>
-                  </article>
-                );
-              })}
+
+                    <div className="mt-auto grid grid-cols-2 gap-3 px-1 pt-2">
+                      <Button variant="secondary" onClick={() => setRulesGameId(project.id)}>
+                        <Info aria-hidden="true" />
+                        Rules
+                      </Button>
+                      <Button onClick={() => setSelectedGameId(project.id)}>
+                        <Play aria-hidden="true" />
+                        Play Game
+                      </Button>
+                    </div>
+                  </ClayCard>
+                </Reveal>
+              ))}
             </div>
           </div>
         </div>
-      </div>
+      </Section>
+
+      <Dialog
+        open={previewProject !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPreviewId(null);
+          }
+        }}
+      >
+        <DialogContent className="h-[calc(100dvh-1rem)] max-h-[54rem] max-w-5xl p-0 sm:h-[calc(100dvh-2rem)]">
+          {previewProject?.url ? (
+            <>
+              <DialogHeader className="py-3">
+                <DialogTitle className="text-lg">{previewProject.title}</DialogTitle>
+                <DialogDescription className="truncate">
+                  {previewProject.url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:p-4">
+                <iframe
+                  key={previewProject.id}
+                  src={previewProject.url}
+                  title={`${previewProject.title} live preview`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                  className="clay-inset min-h-0 w-full flex-1 rounded-2xl bg-white"
+                />
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm text-muted-foreground">
+                    Preview blank? Some sites block embedding, so open it in a new tab.
+                  </p>
+                  <ButtonLink
+                    href={previewProject.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    size="sm"
+                  >
+                    <ExternalLink aria-hidden="true" />
+                    Open in new tab
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </ButtonLink>
+                </div>
+              </div>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={selectedGame !== null}
@@ -532,27 +574,28 @@ export function ProjectsSection() {
           }
         }}
       >
-        <DialogContent className="h-[calc(100dvh-1rem)] max-h-[54rem] max-w-4xl border-glass-border/70 bg-background/95 p-0 backdrop-blur-xl sm:h-[calc(100dvh-2rem)]">
+        <DialogContent className="h-[calc(100dvh-1rem)] max-h-[54rem] max-w-4xl p-0 sm:h-[calc(100dvh-2rem)]">
           {selectedGame && SelectedGameComponent ? (
             <>
-              <DialogHeader className="flex-row items-center justify-between bg-gradient-to-r from-background via-background/95 to-background/90 py-3">
+              <DialogHeader className="flex-row items-center justify-between py-3">
                 <div>
                   <DialogTitle className="text-lg">{selectedGame.title}</DialogTitle>
                   <DialogDescription className="sr-only">
                     {selectedGame.dialogDescription}
                   </DialogDescription>
                 </div>
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="mr-4"
                   onClick={() => {
                     setSelectedGameId(null);
                     setRulesGameId(selectedGame.id);
                   }}
-                  className="mr-10 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background/70 px-3 text-xs font-semibold transition hover:border-primary/50 hover:bg-primary/5"
                 >
-                  <Info className="size-4" />
+                  <Info aria-hidden="true" />
                   Rules
-                </button>
+                </Button>
               </DialogHeader>
 
               <div className="min-h-0 flex-1 overflow-y-auto p-2 sm:p-3">
@@ -571,7 +614,7 @@ export function ProjectsSection() {
           }
         }}
       >
-        <DialogContent className="max-w-md border-glass-border/70 bg-background/98 p-0 backdrop-blur-xl">
+        <DialogContent className="max-w-md p-0">
           {rulesGame ? (
             <>
               <DialogHeader>
@@ -606,6 +649,6 @@ export function ProjectsSection() {
           ) : null}
         </DialogContent>
       </Dialog>
-    </section>
+    </>
   );
 }

@@ -48,15 +48,15 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed left-1/2 top-1/2 z-[71] flex max-h-[92dvh] w-[calc(100%-1.5rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border/60 bg-popover text-popover-foreground shadow-2xl outline-none transition duration-200 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0",
+          "clay fixed left-1/2 top-1/2 z-[71] flex max-h-[92dvh] w-[calc(100%-1.5rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[2rem] bg-popover text-popover-foreground outline-none transition duration-200 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0",
           className,
         )}
         {...props}
       >
         {children}
         <DialogPrimitive.Close
-          aria-label="Close game"
-          className="absolute right-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-lg border border-red-500 bg-red-600 text-white shadow-sm transition hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+          aria-label="Close"
+          className="clay-btn absolute right-3 top-3 z-10 inline-flex size-10 cursor-pointer items-center justify-center rounded-2xl bg-card text-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <X className="size-4" />
         </DialogPrimitive.Close>
@@ -72,7 +72,7 @@ function DialogHeader({
   return (
     <div
       data-slot="dialog-header"
-      className={cn("border-b border-border/60 px-5 py-4 pr-14", className)}
+      className={cn("border-b border-border/60 px-5 py-4 pr-16", className)}
       {...props}
     />
   );

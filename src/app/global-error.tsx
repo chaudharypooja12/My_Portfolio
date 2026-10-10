@@ -9,7 +9,7 @@ export default function GlobalError({
 }) {
   return (
     <html lang="en">
-      <body className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0a0618] px-4 text-center text-white">
+      <body className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#1f2b35] px-4 text-center text-white">
         <h1 className="text-4xl font-bold">Something went wrong</h1>
         <p className="text-muted-foreground">{error.message}</p>
         <button

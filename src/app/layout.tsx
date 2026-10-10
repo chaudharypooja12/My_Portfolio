@@ -2,11 +2,6 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Outfit } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Starfield } from "@/components/layout/starfield";
-import { NebulaBackground } from "@/components/layout/nebula";
-import { SkyBackground } from "@/components/layout/sky-background";
-import { CursorGlow } from "@/components/layout/cursor-glow";
-import { ScrollReveal } from "@/components/layout/scroll-reveal";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -54,13 +49,8 @@ export default function RootLayout({
       className={`${outfit.variable} ${spaceGrotesk.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col cursor-glow">
+      <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <Starfield />
-          <NebulaBackground />
-          <SkyBackground />
-          <CursorGlow />
-          <ScrollReveal />
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
       </body>

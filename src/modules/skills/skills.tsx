@@ -24,13 +24,18 @@ import {
   Presentation,
   MessageCircle,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { SectionHeader } from "@/components/sections/section-header";
+import { ClayCard, IconTile } from "@/components/clay/clay-card";
+import type { Tone } from "@/components/clay/tones";
+import { Reveal } from "@/components/layout/reveal";
+import { Section } from "@/components/sections/section";
+import { TechCarousel } from "@/components/portfolio/tech-carousel";
+import { TechIcon, hasTechIcon, techNames } from "@/components/portfolio/tech-icon";
 
 const categories = [
   {
     icon: Layout,
     name: "Frontend Development",
+    tone: "peach" as Tone,
     skills: [
       { name: "Next.js", level: 85, icon: Blocks },
       { name: "JavaScript", level: 82, icon: FileCode },
@@ -38,51 +43,51 @@ const categories = [
       { name: "shadcn/ui", level: 80, icon: AppWindow },
       { name: "HTML", level: 90, icon: Globe },
     ],
-    gradient: "from-primary to-nebula-2",
   },
   {
     icon: Server,
     name: "Backend & APIs",
+    tone: "sky" as Tone,
     skills: [
       { name: "REST API", level: 80, icon: Server },
       { name: "Resend", level: 75, icon: Mail },
       { name: "Supabase", level: 78, icon: Database },
     ],
-    gradient: "from-accent to-nebula-3",
   },
   {
     icon: Database,
     name: "Database",
+    tone: "mint" as Tone,
     skills: [
       { name: "PostgreSQL", level: 78, icon: Database },
       { name: "SQL", level: 82, icon: Database },
       { name: "MySQL", level: 75, icon: Database },
     ],
-    gradient: "from-nebula-1 to-primary",
   },
   {
     icon: Cloud,
     name: "Deployment & Cloud",
+    tone: "butter" as Tone,
     skills: [
       { name: "Vercel", level: 85, icon: Cloud },
       { name: "GitHub", level: 80, icon: Globe2 },
     ],
-    gradient: "from-nebula-2 to-accent",
   },
   {
     icon: Code2,
     name: "Programming Languages",
+    tone: "rose" as Tone,
     skills: [
       { name: "Python", level: 85, icon: Code2 },
       { name: "C", level: 80, icon: Terminal },
       { name: "C++", level: 75, icon: Terminal },
       { name: "Visual Basic", level: 70, icon: Code2 },
     ],
-    gradient: "from-nebula-3 to-nebula-1",
   },
   {
     icon: Sparkles,
     name: "AI & Automation",
+    tone: "teal" as Tone,
     skills: [
       { name: "ChatGPT", level: 88, icon: MessageSquare },
       { name: "Claude Code", level: 85, icon: Brain },
@@ -90,113 +95,97 @@ const categories = [
       { name: "Meta AI", level: 80, icon: Bot },
       { name: "AI Automation", level: 85, icon: Workflow },
     ],
-    gradient: "from-primary to-nebula-3",
   },
   {
     icon: Bot,
     name: "AI Tools & IDEs",
+    tone: "sky" as Tone,
     skills: [
       { name: "Cursor IDE", level: 88, icon: Monitor },
       { name: "OpenCode", level: 85, icon: Code2 },
       { name: "OpenAI", level: 82, icon: Cpu },
       { name: "Google Flow", level: 78, icon: Video },
     ],
-    gradient: "from-accent to-primary",
   },
   {
     icon: AppWindow,
     name: "Applications & Tools",
+    tone: "peach" as Tone,
     skills: [
       { name: "MS Office", level: 90, icon: FileText },
       { name: "VS Code", level: 88, icon: Code2 },
       { name: "Gamma (PPT)", level: 85, icon: Presentation },
       { name: "Chatbots", level: 80, icon: MessageCircle },
     ],
-    gradient: "from-nebula-1 to-accent",
   },
 ];
 
-const allTech = [
-  "Next.js", "JavaScript", "Tailwind CSS", "shadcn/ui", "HTML",
-  "REST API", "Resend", "Supabase", "PostgreSQL", "SQL", "MySQL",
-  "Vercel", "GitHub", "Python", "C", "C++", "MS Office",
-  "ChatGPT", "Claude Code", "Gemini", "Meta AI", "AI Automation",
-  "Cursor IDE", "OpenCode", "OpenAI", "Google Flow", "Gamma", "Chatbots",
-];
+const half = Math.ceil(techNames.length / 2);
+const carouselRows = [techNames.slice(0, half), techNames.slice(half)];
 
 export function SkillsSection() {
   return (
-    <section id="skills" className="relative section-padding">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-nebula-1/3 to-transparent pointer-events-none" />
-
-      <div className="relative mx-auto max-w-6xl">
-        <SectionHeader
-          title="Technical Skills"
-          description="Technologies, tools, and frameworks I work with"
-        />
-
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((cat, ci) => (
-            <div
-              key={cat.name}
-              className="gradient-border hover-lift reveal"
-              style={{ transitionDelay: `${ci * 0.08}s` }}
-            >
-              <div className="relative rounded-[var(--radius-xl)] bg-card/80 p-5">
-                <div className="mb-4 flex items-center gap-3">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${cat.gradient}`}
-                  >
-                    <cat.icon className="h-5 w-5 text-primary-foreground" />
-                  </div>
-                  <h3 className="font-heading text-base font-bold">{cat.name}</h3>
-                </div>
-
-                <div className="space-y-2.5">
-                  {cat.skills.map((skill) => (
-                    <div key={skill.name}>
-                      <div className="mb-1 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <skill.icon className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className="text-sm font-medium">{skill.name}</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {skill.level}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={`h-full rounded-full bg-gradient-to-r ${cat.gradient} transition-all duration-1000 ease-out`}
-                          style={{ width: `${skill.level}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+    <Section
+      id="skills"
+      title="Technical Skills"
+      description="Technologies, tools, and frameworks I work with"
+    >
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {categories.map((cat, ci) => (
+          <Reveal key={cat.name} delay={(ci % 4) * 80} className="h-full">
+            <ClayCard tone={cat.tone} className="h-full p-5">
+              <div className="mb-5 flex items-center gap-3">
+                <IconTile>
+                  <cat.icon className="size-5" />
+                </IconTile>
+                <h3 className="font-heading text-base font-bold leading-tight">{cat.name}</h3>
               </div>
-            </div>
+
+              <ul className="space-y-3.5">
+                {cat.skills.map((skill) => (
+                  <li key={skill.name}>
+                    <div className="mb-1.5 flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        {hasTechIcon(skill.name) ? (
+                          <TechIcon name={skill.name} className="size-4" />
+                        ) : (
+                          <skill.icon className="size-4 text-muted-foreground" aria-hidden="true" />
+                        )}
+                        {skill.name}
+                      </span>
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        {skill.level}%
+                      </span>
+                    </div>
+                    <div
+                      role="progressbar"
+                      aria-label={`${skill.name} proficiency`}
+                      aria-valuenow={skill.level}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      className="clay-inset h-3 overflow-hidden rounded-full bg-card/70 p-0.5"
+                    >
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{ width: `${skill.level}%` }}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </ClayCard>
+          </Reveal>
+        ))}
+      </div>
+
+      <Reveal className="mt-16">
+        <h3 className="mb-2 text-center font-heading text-xl font-bold">Tech I build with</h3>
+        <div className="space-y-1">
+          {carouselRows.map((row, i) => (
+            <TechCarousel key={i} items={row} reverse={i === 1} />
           ))}
         </div>
-
-        {/* Tech badges */}
-        <div className="mt-10">
-          <p className="mb-4 text-center text-sm text-muted-foreground">
-            Full tech stack
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {allTech.map((tech, i) => (
-              <Badge
-                key={tech}
-                variant="secondary"
-                className="glass hover-lift cursor-default px-4 py-1.5 text-sm reveal"
-                style={{ transitionDelay: `${i * 0.03}s` }}
-              >
-                {tech}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
+      </Reveal>
+    </Section>
   );
 }
